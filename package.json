@@ -1,0 +1,26 @@
+{
+  "name": "todolist-express",
+  "version": "1.0.0",
+  "description": "Todo List con Express.js, Pug y API REST solo servidor",
+  "main": "src/servidor.js",
+  "scripts": {
+    "start": "node src/servidor.js",
+    "dev": "nodemon src/servidor.js"
+  },
+  "keywords": [
+    "todo-list",
+    "express",
+    "pug",
+    "api-rest",
+    "servidor"
+  ],
+  "author": "Tu Nombre",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "pug": "^3.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
