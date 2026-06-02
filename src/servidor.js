@@ -1,7 +1,13 @@
 require('dotenv').config();
 
+const dns = require('dns');
 const mongoose = require('mongoose');
 const aplicacion = require('./aplicacion');
+
+// Solución para el error querySrv ECONNREFUSED con MongoDB Atlas.
+// Node usará DNS públicos para resolver el registro SRV de MongoDB.
+dns.setServers(['8.8.8.8', '1.1.1.1']);
+dns.setDefaultResultOrder('ipv4first');
 
 const PUERTO = process.env.PUERTO || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -12,7 +18,16 @@ async function iniciarServidor() {
       throw new Error('No existe MONGODB_URI en el archivo .env');
     }
 
-    await mongoose.connect(MONGODB_URI);
+    console.log('Intentando conectar a MongoDB...');
+
+    console.log(
+      'URI detectada:',
+      MONGODB_URI.replace(/\/\/(.+?):(.+?)@/, '//USUARIO:CONTRASEÑA@')
+    );
+
+    await mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 20000
+    });
 
     console.log('Conexión exitosa a MongoDB');
     console.log('Base de datos conectada:', mongoose.connection.name);
@@ -23,6 +38,7 @@ async function iniciarServidor() {
     });
   } catch (error) {
     console.error('Error al iniciar el servidor:', error.message);
+    console.error('Tipo de error:', error.name);
     process.exit(1);
   }
 }
