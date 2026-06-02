@@ -4,8 +4,6 @@ const dns = require('dns');
 const mongoose = require('mongoose');
 const aplicacion = require('./aplicacion');
 
-// Solución para el error querySrv ECONNREFUSED con MongoDB Atlas.
-// Node usará DNS públicos para resolver el registro SRV de MongoDB.
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 dns.setDefaultResultOrder('ipv4first');
 
