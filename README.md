@@ -23,7 +23,7 @@ Proyecto básico Todo List
     - MongoDB Atlas
     - Mongoose
     - Thunder Client / Postman / cURL
-
+---------------------------------------------------------
 *DEPENDENCIAS A INSTALAR 
 
     pnpm install
@@ -39,13 +39,30 @@ passport-local  → valida usuario y contraseña
 jsonwebtoken    → genera tokens
 bcryptjs        → encripta contraseñas
 
+
+Instalar CORS  para permitir usar otro puerto y permitir conexion entre puertos.
+    
+    pnpm add cors
+
+Para Crear el Proyecto react:
+
+    pnpm create vite frontend --template react
+
+en "cd frontend" instalamos dependencias con:
+
+    pnpm install
+
+
 ------------------------------------------
+ENDPOINTS:
+
+    POST /api/auth/registro
+    POST /api/auth/login
     GET /api/tareas
     POST /api/tareas
-    PATCH /api/tareas/:id/estado
+    PUT /api/tareas/:id
+    PATCH /api/tareas/:id
     DELETE /api/tareas/:id
-
-ENDPOINTS:
 
 GET:
 
@@ -70,13 +87,25 @@ DELETE:
 
     /api/tareas/id 
 
+para buscar por estado:
+
+        /api/tareas?estado=completada //en_proceso //pendiente
+
 ENDPOINTS PASSPORT:
 
     POST /api/auth/registro
     POST /api/auth/login
     GET  /api/auth/perfil
 
+LIBRERIA MULTER:
 
+permite recibir archivos desde formularios multipart/form-data.
+
+Endpoints:
+
+    POST /api/tareas/:id/archivo       subir archivo a una tarea
+    GET /api/tareas/:id/archivo        descargar archivo de una tarea
+    DELETE /api/tareas/:id/archivo     eliminar archivo de una tarea
 
 *******************************************************************************
 | Método   | Endpoint                 | Para qué sirve                 | Body |
@@ -88,7 +117,4 @@ ENDPOINTS PASSPORT:
 | `DELETE` | `/api/tareas/:id`        | Eliminar una tarea             | No   |
 *******************************************************************************
 
-para buscar por estado
-
-        http://localhost:3000/api/tareas?estado=completada
         
