@@ -1,21 +1,25 @@
 const express = require('express');
-const path = require('path');
 const rutasTareas = require('./rutas/tarea.rutas');
 
 const aplicacion = express();
 
 aplicacion.use(express.json());
 
-aplicacion.use(express.static(path.join(__dirname, 'public')));
-
-aplicacion.set('view engine', 'pug');
-aplicacion.set('views', path.join(__dirname, 'vistas'));
-
 aplicacion.get('/', (req, res) => {
-  res.render('inicio', {
-    titulo: 'Todo List API REST',
-    mensaje: 'Servidor Express funcionando correctamente',
-    rutaApi: '/api/tareas'
+  res.status(200).json({
+    correcto: true,
+    mensaje: 'Servidor Todo List API REST conectado a MongoDB',
+    version: '3.0.0',
+    baseDeDatos: 'MongoDB Atlas',
+    endpoints: {
+      listarTareas: 'GET /api/tareas',
+      buscarTareaPorIdONumero: 'GET /api/tareas/:id',
+      crearTarea: 'POST /api/tareas',
+      actualizarTareaCompleta: 'PUT /api/tareas/:id',
+      actualizarTareaParcial: 'PATCH /api/tareas/:id',
+      actualizarEstado: 'PATCH /api/tareas/:id/estado',
+      eliminarTarea: 'DELETE /api/tareas/:id'
+    }
   });
 });
 
@@ -29,3 +33,9 @@ aplicacion.use((req, res) => {
 });
 
 module.exports = aplicacion;
+
+//UTILIZAR PUT Y PATCH
+//EL TASTLIST TIENE QUE SER CON CACHE
+// el servidor va mirar el d tag 
+// aumentar en el get task list, como los datos metadatos, de manera estandart si datos no despliega tiene que decir que datos no hay datos. 
+// cuidar los metadatos. 

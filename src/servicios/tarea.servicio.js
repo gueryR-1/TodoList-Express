@@ -1,5 +1,4 @@
-let tareas = [];
-let siguienteId = 1;
+const Tarea = require('../modelos/tarea.modelo');
 
 const estadosValidos = ['pendiente', 'en_proceso', 'completada'];
 
@@ -13,90 +12,172 @@ function normalizarEstado(estado) {
     .toLowerCase()
     .replace(/\s+/g, '_');
 
-  if (estadosValidos.includes(estadoNormalizado)) {
-    return estadoNormalizado;
+  const equivalenciasEstados = {
+    proceso: 'en_proceso',
+    en_proceso: 'en_proceso',
+    'en proceso': 'en_proceso',
+    pendiente: 'pendiente',
+    completada: 'completada',
+    completo: 'completada',
+    terminada: 'completada',
+    terminado: 'completada',
+    finalizada: 'completada',
+    finalizado: 'completada'
+  };
+
+  const estadoConvertido = equivalenciasEstados[estadoNormalizado] || estadoNormalizado;
+
+  if (estadosValidos.includes(estadoConvertido)) {
+    return estadoConvertido;
   }
 
   return 'pendiente';
 }
 
-function normalizarTitulo(titulo) {
-  if (!titulo || typeof titulo !== 'string') {
-    return '';
-  }
+function obtenerFiltroPorIdONumero(id) {
+  const esNumero = !Number.isNaN(Number(id));
 
-  return titulo.trim().toLowerCase();
-}
-
-function existeTareaConTitulo(titulo) {
-  const tituloNormalizado = normalizarTitulo(titulo);
-
-  return tareas.some((tarea) => {
-    return normalizarTitulo(tarea.titulo) === tituloNormalizado;
-  });
-}
-
-function obtenerTodasLasTareas() {
-  return tareas;
-}
-
-function obtenerTareaPorId(id) {
-  return tareas.find((tarea) => tarea.id === id);
-}
-
-function crearTarea(datos) {
-  if (existeTareaConTitulo(datos.titulo)) {
+  if (esNumero) {
     return {
-      error: true,
-      tipo: 'TAREA_DUPLICADA',
-      mensaje: 'Ya existe una tarea con ese título'
+      numero: Number(id)
     };
   }
 
-  const nuevaTarea = {
-    id: siguienteId++,
-    titulo: datos.titulo.trim(),
-    estado: normalizarEstado(datos.estado),
-    fechaCreacion: new Date().toISOString()
-  };
-
-  tareas.push(nuevaTarea);
-
   return {
-    error: false,
-    tarea: nuevaTarea
+    _id: id
   };
 }
 
-function actualizarEstadoTarea(id, estado) {
-  const tarea = obtenerTareaPorId(id);
+async function obtenerTodasLasTareas(filtros = {}) {
+  const consulta = {};
 
-  if (!tarea) {
-    return null;
+  if (filtros.estado) {
+    consulta.estado = normalizarEstado(filtros.estado);
   }
 
-  tarea.estado = normalizarEstado(estado);
-  tarea.fechaActualizacion = new Date().toISOString();
-
-  return tarea;
+  return await Tarea.find(consulta).sort({ numero: 1 });
 }
 
-function eliminarTarea(id) {
-  const indice = tareas.findIndex((tarea) => tarea.id === id);
+async function obtenerTareaPorId(id) {
+  const filtro = obtenerFiltroPorIdONumero(id);
 
-  if (indice === -1) {
-    return null;
+  return await Tarea.findOne(filtro);
+}
+
+async function crearTarea(datos) {
+  try {
+    const ultimaTarea = await Tarea.findOne().sort({ numero: -1 });
+
+    const nuevoNumero = ultimaTarea && ultimaTarea.numero
+      ? ultimaTarea.numero + 1
+      : 1;
+
+    const nuevaTarea = await Tarea.create({
+      numero: nuevoNumero,
+      titulo: datos.titulo.trim(),
+      estado: normalizarEstado(datos.estado)
+    });
+
+    return {
+      error: false,
+      tarea: nuevaTarea
+    };
+  } catch (error) {
+    if (error.code === 11000) {
+      return {
+        error: true,
+        mensaje: 'Ya existe una tarea con ese título o número'
+      };
+    }
+
+    throw error;
   }
+}
 
-  const tareaEliminada = tareas.splice(indice, 1);
+async function actualizarTareaCompleta(id, datos) {
+  try {
+    const filtro = obtenerFiltroPorIdONumero(id);
 
-  return tareaEliminada[0];
+    return await Tarea.findOneAndUpdate(
+      filtro,
+      {
+        titulo: datos.titulo.trim(),
+        estado: normalizarEstado(datos.estado)
+      },
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+  } catch (error) {
+    if (error.code === 11000) {
+      return {
+        error: true,
+        mensaje: 'Ya existe una tarea con ese título'
+      };
+    }
+
+    throw error;
+  }
+}
+
+async function actualizarTareaParcial(id, datos) {
+  try {
+    const filtro = obtenerFiltroPorIdONumero(id);
+
+    const datosActualizados = {};
+
+    if (datos.titulo && typeof datos.titulo === 'string') {
+      datosActualizados.titulo = datos.titulo.trim();
+    }
+
+    if (datos.estado && typeof datos.estado === 'string') {
+      datosActualizados.estado = normalizarEstado(datos.estado);
+    }
+
+    return await Tarea.findOneAndUpdate(filtro, datosActualizados, {
+      new: true,
+      runValidators: true
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return {
+        error: true,
+        mensaje: 'Ya existe una tarea con ese título'
+      };
+    }
+
+    throw error;
+  }
+}
+
+async function actualizarEstadoTarea(id, estado) {
+  const filtro = obtenerFiltroPorIdONumero(id);
+
+  return await Tarea.findOneAndUpdate(
+    filtro,
+    {
+      estado: normalizarEstado(estado)
+    },
+    {
+      new: true,
+      runValidators: true
+    }
+  );
+}
+
+async function eliminarTarea(id) {
+  const filtro = obtenerFiltroPorIdONumero(id);
+
+  return await Tarea.findOneAndDelete(filtro);
 }
 
 module.exports = {
   obtenerTodasLasTareas,
   obtenerTareaPorId,
   crearTarea,
+  actualizarTareaCompleta,
+  actualizarTareaParcial,
   actualizarEstadoTarea,
   eliminarTarea
 };

@@ -1,7 +1,7 @@
 {
   "name": "todolist-express",
-  "version": "1.0.0",
-  "description": "Todo List con Express.js, Pug y API REST solo servidor",
+  "version": "3.0.0",
+  "description": "Todo List API REST con Express.js y MongoDB Atlas",
   "main": "src/servidor.js",
   "scripts": {
     "start": "node src/servidor.js",
@@ -10,15 +10,16 @@
   "keywords": [
     "todo-list",
     "express",
-    "pug",
     "api-rest",
-    "servidor"
+    "mongodb",
+    "mongoose"
   ],
-  "author": "Tu Nombre",
+  "author": "GueryR",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "pug": "^3.0.4"
+    "mongoose": "^9.6.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
