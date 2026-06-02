@@ -1,17 +1,25 @@
 const express = require('express');
+const passport = require('./autenticacion/passport');
+
 const rutasTareas = require('./rutas/tarea.rutas');
+const rutasAutenticacion = require('./rutas/autenticacion.rutas');
 
 const aplicacion = express();
 
 aplicacion.use(express.json());
+aplicacion.use(passport.initialize());
 
 aplicacion.get('/', (req, res) => {
   res.status(200).json({
     correcto: true,
-    mensaje: 'Servidor Todo List API REST conectado a MongoDB',
-    version: '3.0.0',
+    mensaje: 'Servidor Todo List API REST con MongoDB, Passport y JWT',
+    version: '4.0.0',
     baseDeDatos: 'MongoDB Atlas',
+    autenticacion: 'Passport JWT',
     endpoints: {
+      registro: 'POST /api/auth/registro',
+      login: 'POST /api/auth/login',
+      perfil: 'GET /api/auth/perfil',
       listarTareas: 'GET /api/tareas',
       buscarTareaPorIdONumero: 'GET /api/tareas/:id',
       crearTarea: 'POST /api/tareas',
@@ -23,6 +31,7 @@ aplicacion.get('/', (req, res) => {
   });
 });
 
+aplicacion.use('/api/auth', rutasAutenticacion);
 aplicacion.use('/api/tareas', rutasTareas);
 
 aplicacion.use((req, res) => {

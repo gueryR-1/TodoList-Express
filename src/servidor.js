@@ -15,6 +15,8 @@ async function iniciarServidor() {
     await mongoose.connect(MONGODB_URI);
 
     console.log('Conexión exitosa a MongoDB');
+    console.log('Base de datos conectada:', mongoose.connection.name);
+    console.log('Host conectado:', mongoose.connection.host);
 
     aplicacion.listen(PUERTO, () => {
       console.log(`Servidor ejecutándose en http://localhost:${PUERTO}`);

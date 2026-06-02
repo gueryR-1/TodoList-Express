@@ -24,10 +24,20 @@ Proyecto básico Todo List
     - Mongoose
     - Thunder Client / Postman / cURL
 
-DEPENDENCIAS A INSTALAR 
+*DEPENDENCIAS A INSTALAR 
 
     pnpm install
     pnpm dev
+
+dependencia para passport:
+
+    pnpm add passport passport-jwt passport-local jsonwebtoken bcryptjs
+
+passport        → middleware principal de autenticación
+passport-jwt    → valida tokens JWT en rutas protegidas
+passport-local  → valida usuario y contraseña
+jsonwebtoken    → genera tokens
+bcryptjs        → encripta contraseñas
 
 ------------------------------------------
     GET /api/tareas
@@ -35,17 +45,16 @@ DEPENDENCIAS A INSTALAR
     PATCH /api/tareas/:id/estado
     DELETE /api/tareas/:id
 
+ENDPOINTS:
+
 GET:
 
-    http://localhost:3000/api/tareas
-
-    http://localhost:3000/api/tareas/id
-
-
+    /api/tareas
+    /api/tareas/id
 
 POST: Crear Tareas
 
-    http://localhost:3000/api/tareas
+    /api/tareas
 
     {
     "titulo": "Estudiar Express",
@@ -59,7 +68,14 @@ PATCH
 
 DELETE:
 
-    http://localhost:3000/api/tareas/id 
+    /api/tareas/id 
+
+ENDPOINTS PASSPORT:
+
+    POST /api/auth/registro
+    POST /api/auth/login
+    GET  /api/auth/perfil
+
 
 
 *******************************************************************************
