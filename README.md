@@ -16,11 +16,24 @@ Proyecto básico Todo List
 - En proceso
 - Completada
 
-DEPENDENCIAS A INSTALAR 
-    npm install -g pnpm
-    pnpm add express pug
-    pnpm add -D nodemon
+## Tecnologías
 
+    - Node.js
+    - Express.js
+    - MongoDB Atlas
+    - Mongoose
+    - Thunder Client / Postman / cURL
+
+DEPENDENCIAS A INSTALAR 
+
+    pnpm install
+    pnpm dev
+
+------------------------------------------
+    GET /api/tareas
+    POST /api/tareas
+    PATCH /api/tareas/:id/estado
+    DELETE /api/tareas/:id
 
 GET:
 
@@ -39,6 +52,10 @@ POST: Crear Tareas
     "estado": "pendiente"
     }
 
+PATCH
+    {
+    "estado": "pendiente"
+    }
 
 DELETE:
 
@@ -54,3 +71,8 @@ DELETE:
 | `PATCH`  | `/api/tareas/:id/estado` | Cambiar el estado de una tarea | Sí   |
 | `DELETE` | `/api/tareas/:id`        | Eliminar una tarea             | No   |
 *******************************************************************************
+
+para buscar por estado
+
+        http://localhost:3000/api/tareas?estado=completada
+        
