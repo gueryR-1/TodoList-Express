@@ -12,12 +12,14 @@ function idONumeroValido(id) {
 async function obtenerTareas(req, res) {
   try {
     const { estado } = req.query;
+    const usuarioId = req.user._id;
 
-    const tareas = await servicioTarea.obtenerTodasLasTareas({
+    const tareas = await servicioTarea.obtenerTodasLasTareas(usuarioId, {
       estado
     });
 
     const datosSerializados = JSON.stringify({
+      usuario: usuarioId,
       estado: estado || 'todos',
       tareas
     });
@@ -49,6 +51,10 @@ async function obtenerTareas(req, res) {
         fuente: 'MongoDB Atlas',
         recurso: '/api/tareas',
         metodo: 'GET',
+        usuario: {
+          id: req.user._id,
+          correo: req.user.correo
+        },
         filtros: {
           estado: estado || 'sin filtro'
         },
@@ -72,6 +78,7 @@ async function obtenerTareas(req, res) {
 async function obtenerTareaPorId(req, res) {
   try {
     const { id } = req.params;
+    const usuarioId = req.user._id;
 
     if (!idONumeroValido(id)) {
       return res.status(400).json({
@@ -80,12 +87,12 @@ async function obtenerTareaPorId(req, res) {
       });
     }
 
-    const tarea = await servicioTarea.obtenerTareaPorId(id);
+    const tarea = await servicioTarea.obtenerTareaPorId(id, usuarioId);
 
     if (!tarea) {
       return res.status(404).json({
         correcto: false,
-        mensaje: 'Tarea no encontrada'
+        mensaje: 'Tarea no encontrada para este usuario'
       });
     }
 
@@ -106,6 +113,7 @@ async function obtenerTareaPorId(req, res) {
 async function crearTarea(req, res) {
   try {
     const { titulo, estado } = req.body || {};
+    const usuarioId = req.user._id;
 
     if (!titulo || typeof titulo !== 'string' || titulo.trim() === '') {
       return res.status(400).json({
@@ -114,10 +122,13 @@ async function crearTarea(req, res) {
       });
     }
 
-    const resultado = await servicioTarea.crearTarea({
-      titulo,
-      estado
-    });
+    const resultado = await servicioTarea.crearTarea(
+      {
+        titulo,
+        estado
+      },
+      usuarioId
+    );
 
     if (resultado.error) {
       return res.status(409).json({
@@ -144,6 +155,7 @@ async function actualizarTareaCompleta(req, res) {
   try {
     const { id } = req.params;
     const { titulo, estado } = req.body || {};
+    const usuarioId = req.user._id;
 
     if (!idONumeroValido(id)) {
       return res.status(400).json({
@@ -166,10 +178,14 @@ async function actualizarTareaCompleta(req, res) {
       });
     }
 
-    const tareaActualizada = await servicioTarea.actualizarTareaCompleta(id, {
-      titulo,
-      estado
-    });
+    const tareaActualizada = await servicioTarea.actualizarTareaCompleta(
+      id,
+      {
+        titulo,
+        estado
+      },
+      usuarioId
+    );
 
     if (tareaActualizada && tareaActualizada.error) {
       return res.status(409).json({
@@ -181,7 +197,7 @@ async function actualizarTareaCompleta(req, res) {
     if (!tareaActualizada) {
       return res.status(404).json({
         correcto: false,
-        mensaje: 'Tarea no encontrada'
+        mensaje: 'Tarea no encontrada para este usuario'
       });
     }
 
@@ -203,6 +219,7 @@ async function actualizarTareaParcial(req, res) {
   try {
     const { id } = req.params;
     const { titulo, estado } = req.body || {};
+    const usuarioId = req.user._id;
 
     if (!idONumeroValido(id)) {
       return res.status(400).json({
@@ -218,10 +235,14 @@ async function actualizarTareaParcial(req, res) {
       });
     }
 
-    const tareaActualizada = await servicioTarea.actualizarTareaParcial(id, {
-      titulo,
-      estado
-    });
+    const tareaActualizada = await servicioTarea.actualizarTareaParcial(
+      id,
+      {
+        titulo,
+        estado
+      },
+      usuarioId
+    );
 
     if (tareaActualizada && tareaActualizada.error) {
       return res.status(409).json({
@@ -233,7 +254,7 @@ async function actualizarTareaParcial(req, res) {
     if (!tareaActualizada) {
       return res.status(404).json({
         correcto: false,
-        mensaje: 'Tarea no encontrada'
+        mensaje: 'Tarea no encontrada para este usuario'
       });
     }
 
@@ -255,6 +276,7 @@ async function actualizarEstadoTarea(req, res) {
   try {
     const { id } = req.params;
     const { estado } = req.body || {};
+    const usuarioId = req.user._id;
 
     if (!idONumeroValido(id)) {
       return res.status(400).json({
@@ -270,12 +292,16 @@ async function actualizarEstadoTarea(req, res) {
       });
     }
 
-    const tareaActualizada = await servicioTarea.actualizarEstadoTarea(id, estado);
+    const tareaActualizada = await servicioTarea.actualizarEstadoTarea(
+      id,
+      estado,
+      usuarioId
+    );
 
     if (!tareaActualizada) {
       return res.status(404).json({
         correcto: false,
-        mensaje: 'Tarea no encontrada'
+        mensaje: 'Tarea no encontrada para este usuario'
       });
     }
 
@@ -296,6 +322,7 @@ async function actualizarEstadoTarea(req, res) {
 async function eliminarTarea(req, res) {
   try {
     const { id } = req.params;
+    const usuarioId = req.user._id;
 
     if (!idONumeroValido(id)) {
       return res.status(400).json({
@@ -304,12 +331,12 @@ async function eliminarTarea(req, res) {
       });
     }
 
-    const tareaEliminada = await servicioTarea.eliminarTarea(id);
+    const tareaEliminada = await servicioTarea.eliminarTarea(id, usuarioId);
 
     if (!tareaEliminada) {
       return res.status(404).json({
         correcto: false,
-        mensaje: 'Tarea no encontrada'
+        mensaje: 'Tarea no encontrada para este usuario'
       });
     }
 

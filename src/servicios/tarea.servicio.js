@@ -25,7 +25,8 @@ function normalizarEstado(estado) {
     finalizado: 'completada'
   };
 
-  const estadoConvertido = equivalenciasEstados[estadoNormalizado] || estadoNormalizado;
+  const estadoConvertido =
+    equivalenciasEstados[estadoNormalizado] || estadoNormalizado;
 
   if (estadosValidos.includes(estadoConvertido)) {
     return estadoConvertido;
@@ -34,22 +35,26 @@ function normalizarEstado(estado) {
   return 'pendiente';
 }
 
-function obtenerFiltroPorIdONumero(id) {
+function obtenerFiltroPorIdONumero(id, usuarioId) {
   const esNumero = !Number.isNaN(Number(id));
 
   if (esNumero) {
     return {
-      numero: Number(id)
+      numero: Number(id),
+      usuario: usuarioId
     };
   }
 
   return {
-    _id: id
+    _id: id,
+    usuario: usuarioId
   };
 }
 
-async function obtenerTodasLasTareas(filtros = {}) {
-  const consulta = {};
+async function obtenerTodasLasTareas(usuarioId, filtros = {}) {
+  const consulta = {
+    usuario: usuarioId
+  };
 
   if (filtros.estado) {
     consulta.estado = normalizarEstado(filtros.estado);
@@ -58,24 +63,26 @@ async function obtenerTodasLasTareas(filtros = {}) {
   return await Tarea.find(consulta).sort({ numero: 1 });
 }
 
-async function obtenerTareaPorId(id) {
-  const filtro = obtenerFiltroPorIdONumero(id);
+async function obtenerTareaPorId(id, usuarioId) {
+  const filtro = obtenerFiltroPorIdONumero(id, usuarioId);
 
   return await Tarea.findOne(filtro);
 }
 
-async function crearTarea(datos) {
+async function crearTarea(datos, usuarioId) {
   try {
-    const ultimaTarea = await Tarea.findOne().sort({ numero: -1 });
+    const ultimaTarea = await Tarea.findOne({
+      usuario: usuarioId
+    }).sort({ numero: -1 });
 
-    const nuevoNumero = ultimaTarea && ultimaTarea.numero
-      ? ultimaTarea.numero + 1
-      : 1;
+    const nuevoNumero =
+      ultimaTarea && ultimaTarea.numero ? ultimaTarea.numero + 1 : 1;
 
     const nuevaTarea = await Tarea.create({
       numero: nuevoNumero,
       titulo: datos.titulo.trim(),
-      estado: normalizarEstado(datos.estado)
+      estado: normalizarEstado(datos.estado),
+      usuario: usuarioId
     });
 
     return {
@@ -86,7 +93,7 @@ async function crearTarea(datos) {
     if (error.code === 11000) {
       return {
         error: true,
-        mensaje: 'Ya existe una tarea con ese título o número'
+        mensaje: 'Ya existe una tarea con ese título para este usuario'
       };
     }
 
@@ -94,9 +101,9 @@ async function crearTarea(datos) {
   }
 }
 
-async function actualizarTareaCompleta(id, datos) {
+async function actualizarTareaCompleta(id, datos, usuarioId) {
   try {
-    const filtro = obtenerFiltroPorIdONumero(id);
+    const filtro = obtenerFiltroPorIdONumero(id, usuarioId);
 
     return await Tarea.findOneAndUpdate(
       filtro,
@@ -113,7 +120,7 @@ async function actualizarTareaCompleta(id, datos) {
     if (error.code === 11000) {
       return {
         error: true,
-        mensaje: 'Ya existe una tarea con ese título'
+        mensaje: 'Ya existe una tarea con ese título para este usuario'
       };
     }
 
@@ -121,9 +128,9 @@ async function actualizarTareaCompleta(id, datos) {
   }
 }
 
-async function actualizarTareaParcial(id, datos) {
+async function actualizarTareaParcial(id, datos, usuarioId) {
   try {
-    const filtro = obtenerFiltroPorIdONumero(id);
+    const filtro = obtenerFiltroPorIdONumero(id, usuarioId);
 
     const datosActualizados = {};
 
@@ -143,7 +150,7 @@ async function actualizarTareaParcial(id, datos) {
     if (error.code === 11000) {
       return {
         error: true,
-        mensaje: 'Ya existe una tarea con ese título'
+        mensaje: 'Ya existe una tarea con ese título para este usuario'
       };
     }
 
@@ -151,8 +158,8 @@ async function actualizarTareaParcial(id, datos) {
   }
 }
 
-async function actualizarEstadoTarea(id, estado) {
-  const filtro = obtenerFiltroPorIdONumero(id);
+async function actualizarEstadoTarea(id, estado, usuarioId) {
+  const filtro = obtenerFiltroPorIdONumero(id, usuarioId);
 
   return await Tarea.findOneAndUpdate(
     filtro,
@@ -166,8 +173,8 @@ async function actualizarEstadoTarea(id, estado) {
   );
 }
 
-async function eliminarTarea(id) {
-  const filtro = obtenerFiltroPorIdONumero(id);
+async function eliminarTarea(id, usuarioId) {
+  const filtro = obtenerFiltroPorIdONumero(id, usuarioId);
 
   return await Tarea.findOneAndDelete(filtro);
 }

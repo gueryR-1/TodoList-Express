@@ -1,17 +1,33 @@
 const express = require('express');
+const cors = require('cors');
+const passport = require('./autenticacion/passport');
+
 const rutasTareas = require('./rutas/tarea.rutas');
+const rutasAutenticacion = require('./rutas/autenticacion.rutas');
 
 const aplicacion = express();
 
+aplicacion.use(cors({
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 aplicacion.use(express.json());
+aplicacion.use(passport.initialize());
 
 aplicacion.get('/', (req, res) => {
   res.status(200).json({
     correcto: true,
-    mensaje: 'Servidor Todo List API REST conectado a MongoDB',
-    version: '3.0.0',
+    mensaje: 'Servidor Todo List API REST con MongoDB, Passport, JWT y React',
+    version: '5.0.0',
     baseDeDatos: 'MongoDB Atlas',
+    autenticacion: 'Passport JWT',
+    frontend: 'React',
     endpoints: {
+      registro: 'POST /api/auth/registro',
+      login: 'POST /api/auth/login',
+      perfil: 'GET /api/auth/perfil',
       listarTareas: 'GET /api/tareas',
       buscarTareaPorIdONumero: 'GET /api/tareas/:id',
       crearTarea: 'POST /api/tareas',
@@ -23,6 +39,7 @@ aplicacion.get('/', (req, res) => {
   });
 });
 
+aplicacion.use('/api/auth', rutasAutenticacion);
 aplicacion.use('/api/tareas', rutasTareas);
 
 aplicacion.use((req, res) => {
