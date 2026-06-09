@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   registrarUsuario,
   iniciarSesion,
@@ -8,6 +8,13 @@ import {
   actualizarTarea,
   eliminarTarea
 } from './api';
+
+import LoginFormulario from './componentes/LoginFormulario';
+import BarraSuperior from './componentes/BarraSuperior';
+import MenuLateral from './componentes/MenuLateral';
+import FormularioTarea from './componentes/FormularioTarea';
+import ListaTareas from './componentes/ListaTareas';
+import Mensaje from './componentes/Mensaje';
 
 function App() {
   const [modoFormulario, setModoFormulario] = useState('login');
@@ -24,12 +31,55 @@ function App() {
   const [estadoTarea, setEstadoTarea] = useState('pendiente');
   const [filtroEstado, setFiltroEstado] = useState('');
 
+  const [paginaActual, setPaginaActual] = useState(1);
+  const tareasPorPagina = 5;
+
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
 
   function limpiarMensajes() {
     setMensaje('');
     setError('');
+  }
+
+  function formatearEstado(estado) {
+    const estados = {
+      pendiente: 'Pendiente',
+      en_proceso: 'En proceso',
+      completada: 'Completada'
+    };
+
+    return estados[estado] || estado;
+  }
+
+  function obtenerClaseEstado(estado) {
+    if (estado === 'pendiente') return 'estado pendiente';
+    if (estado === 'en_proceso') return 'estado proceso';
+    if (estado === 'completada') return 'estado completada';
+
+    return 'estado';
+  }
+
+  function cambiarFiltro(nuevoFiltro) {
+    setFiltroEstado(nuevoFiltro);
+    setPaginaActual(1);
+  }
+
+  const totalPaginas = Math.max(1, Math.ceil(tareas.length / tareasPorPagina));
+
+  const tareasPaginadas = useMemo(() => {
+    const inicio = (paginaActual - 1) * tareasPorPagina;
+    const fin = inicio + tareasPorPagina;
+
+    return tareas.slice(inicio, fin);
+  }, [tareas, paginaActual]);
+
+  function cambiarPagina(nuevaPagina) {
+    if (nuevaPagina < 1 || nuevaPagina > totalPaginas) {
+      return;
+    }
+
+    setPaginaActual(nuevaPagina);
   }
 
   async function cargarPerfil() {
@@ -50,6 +100,7 @@ function App() {
       const respuesta = await obtenerTareas(filtroEstado);
 
       setTareas(respuesta.datos || []);
+      setPaginaActual(1);
 
       if (respuesta.metadatos && !respuesta.metadatos.hayDatos) {
         setMensaje(respuesta.mensaje);
@@ -108,6 +159,8 @@ function App() {
     setTareas([]);
     setCorreo('');
     setPassword('');
+    setPaginaActual(1);
+    setFiltroEstado('');
     setMensaje('Sesión cerrada correctamente.');
   }
 
@@ -116,6 +169,11 @@ function App() {
 
     try {
       limpiarMensajes();
+
+      if (!tituloTarea.trim()) {
+        setError('El título de la tarea es obligatorio.');
+        return;
+      }
 
       await crearTarea({
         titulo: tituloTarea,
@@ -200,201 +258,60 @@ function App() {
 
   if (!token) {
     return (
-      <main className="contenedor">
-        <section className="tarjeta autenticacion">
-          <h1>Todo List React</h1>
-          <p className="subtitulo">
-            Versión 5: React consumiendo API REST con Passport JWT
-          </p>
-
-          <div className="pestanas">
-            <button
-              className={modoFormulario === 'login' ? 'activo' : ''}
-              onClick={() => setModoFormulario('login')}
-            >
-              Iniciar sesión
-            </button>
-
-            <button
-              className={modoFormulario === 'registro' ? 'activo' : ''}
-              onClick={() => setModoFormulario('registro')}
-            >
-              Registrarse
-            </button>
-          </div>
-
-          {mensaje && <div className="mensaje correcto">{mensaje}</div>}
-          {error && <div className="mensaje error">{error}</div>}
-
-          {modoFormulario === 'registro' ? (
-            <form onSubmit={manejarRegistro} className="formulario">
-              <label>
-                Nombre
-                <input
-                  type="text"
-                  value={nombre}
-                  onChange={(evento) => setNombre(evento.target.value)}
-                  placeholder="Tu nombre"
-                />
-              </label>
-
-              <label>
-                Correo
-                <input
-                  type="email"
-                  value={correo}
-                  onChange={(evento) => setCorreo(evento.target.value)}
-                  placeholder="correo@email.com"
-                />
-              </label>
-
-              <label>
-                Contraseña
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(evento) => setPassword(evento.target.value)}
-                  placeholder="Mínimo 6 caracteres"
-                />
-              </label>
-
-              <button type="submit" className="boton principal">
-                Crear cuenta
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={manejarLogin} className="formulario">
-              <label>
-                Correo
-                <input
-                  type="email"
-                  value={correo}
-                  onChange={(evento) => setCorreo(evento.target.value)}
-                  placeholder="correo@email.com"
-                />
-              </label>
-
-              <label>
-                Contraseña
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(evento) => setPassword(evento.target.value)}
-                  placeholder="Tu contraseña"
-                />
-              </label>
-
-              <button type="submit" className="boton principal">
-                Entrar
-              </button>
-            </form>
-          )}
-        </section>
-      </main>
+      <LoginFormulario
+        modoFormulario={modoFormulario}
+        setModoFormulario={setModoFormulario}
+        nombre={nombre}
+        setNombre={setNombre}
+        correo={correo}
+        setCorreo={setCorreo}
+        password={password}
+        setPassword={setPassword}
+        mensaje={mensaje}
+        error={error}
+        manejarRegistro={manejarRegistro}
+        manejarLogin={manejarLogin}
+      />
     );
   }
 
   return (
-    <main className="contenedor">
-      <section className="encabezado">
-        <div>
-          <h1>Todo List React</h1>
-          <p>
-            Usuario: <strong>{usuario?.nombre}</strong> — {usuario?.correo}
-          </p>
-        </div>
+    <main className="panel">
+      <BarraSuperior usuario={usuario} cerrarSesion={cerrarSesion} />
 
-        <button onClick={cerrarSesion} className="boton secundario">
-          Cerrar sesión
-        </button>
-      </section>
+      <section className="contenido-panel">
+        <MenuLateral
+          filtroEstado={filtroEstado}
+          cambiarFiltro={cambiarFiltro}
+          totalTareas={tareas.length}
+        />
 
-      {mensaje && <div className="mensaje correcto">{mensaje}</div>}
-      {error && <div className="mensaje error">{error}</div>}
+        <section className="area-trabajo">
+          <Mensaje mensaje={mensaje} error={error} />
 
-      <section className="tarjeta">
-        <h2>Crear tarea</h2>
-
-        <form onSubmit={manejarCrearTarea} className="formulario-tarea">
-          <input
-            type="text"
-            value={tituloTarea}
-            onChange={(evento) => setTituloTarea(evento.target.value)}
-            placeholder="Ejemplo: Estudiar React"
+          <FormularioTarea
+            tituloTarea={tituloTarea}
+            setTituloTarea={setTituloTarea}
+            estadoTarea={estadoTarea}
+            setEstadoTarea={setEstadoTarea}
+            manejarCrearTarea={manejarCrearTarea}
           />
 
-          <select
-            value={estadoTarea}
-            onChange={(evento) => setEstadoTarea(evento.target.value)}
-          >
-            <option value="pendiente">Pendiente</option>
-            <option value="en_proceso">En proceso</option>
-            <option value="completada">Completada</option>
-          </select>
-
-          <button type="submit" className="boton principal">
-            Agregar
-          </button>
-        </form>
-      </section>
-
-      <section className="tarjeta">
-        <div className="barra-lista">
-          <h2>Mis tareas</h2>
-
-          <select
-            value={filtroEstado}
-            onChange={(evento) => setFiltroEstado(evento.target.value)}
-          >
-            <option value="">Todas</option>
-            <option value="pendiente">Pendientes</option>
-            <option value="en_proceso">En proceso</option>
-            <option value="completada">Completadas</option>
-          </select>
-        </div>
-
-        {tareas.length === 0 ? (
-          <p className="sin-datos">No hay tareas para mostrar.</p>
-        ) : (
-          <div className="lista-tareas">
-            {tareas.map((tarea) => (
-              <article key={tarea._id} className="tarea">
-                <div>
-                  <span className="numero">#{tarea.numero}</span>
-                  <h3>{tarea.titulo}</h3>
-                  <p>Estado: {tarea.estado}</p>
-                </div>
-
-                <div className="acciones">
-                  <select
-                    value={tarea.estado}
-                    onChange={(evento) =>
-                      manejarCambioEstado(tarea, evento.target.value)
-                    }
-                  >
-                    <option value="pendiente">Pendiente</option>
-                    <option value="en_proceso">En proceso</option>
-                    <option value="completada">Completada</option>
-                  </select>
-
-                  <button
-                    className="boton secundario"
-                    onClick={() => manejarEditarTitulo(tarea)}
-                  >
-                    Editar
-                  </button>
-
-                  <button
-                    className="boton peligro"
-                    onClick={() => manejarEliminarTarea(tarea)}
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+          <ListaTareas
+            tareas={tareas}
+            tareasPaginadas={tareasPaginadas}
+            filtroEstado={filtroEstado}
+            cambiarFiltro={cambiarFiltro}
+            paginaActual={paginaActual}
+            totalPaginas={totalPaginas}
+            cambiarPagina={cambiarPagina}
+            formatearEstado={formatearEstado}
+            obtenerClaseEstado={obtenerClaseEstado}
+            manejarCambioEstado={manejarCambioEstado}
+            manejarEditarTitulo={manejarEditarTitulo}
+            manejarEliminarTarea={manejarEliminarTarea}
+          />
+        </section>
       </section>
     </main>
   );
