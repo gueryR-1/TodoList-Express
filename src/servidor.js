@@ -16,6 +16,7 @@ async function iniciarServidor() {
       throw new Error('No existe MONGODB_URI en el archivo .env');
     }
 
+    console.log('DNS usados por Node:', dns.getServers());
     console.log('Intentando conectar a MongoDB...');
 
     console.log(

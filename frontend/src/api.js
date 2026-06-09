@@ -16,7 +16,6 @@ function crearHeaders(conToken = false) {
       headers.Authorization = `Bearer ${token}`;
     }
   }
-
   return headers;
 }
 
@@ -53,7 +52,6 @@ export async function iniciarSesion(credenciales) {
     headers: crearHeaders(false),
     body: JSON.stringify(credenciales)
   });
-
   return manejarRespuesta(respuesta);
 }
 
