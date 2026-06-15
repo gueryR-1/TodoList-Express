@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+
 import {
   registrarUsuario,
   iniciarSesion,
@@ -6,6 +7,9 @@ import {
   obtenerTareas,
   crearTarea,
   actualizarTarea,
+  subirArchivoTarea,
+  descargarArchivoTarea,
+  eliminarArchivoTarea,
   eliminarTarea
 } from './api';
 
@@ -29,6 +33,7 @@ function App() {
   const [tareas, setTareas] = useState([]);
   const [tituloTarea, setTituloTarea] = useState('');
   const [estadoTarea, setEstadoTarea] = useState('pendiente');
+  const [archivoTarea, setArchivoTarea] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState('');
 
   const [paginaActual, setPaginaActual] = useState(1);
@@ -177,11 +182,13 @@ function App() {
 
       await crearTarea({
         titulo: tituloTarea,
-        estado: estadoTarea
+        estado: estadoTarea,
+        archivo: archivoTarea
       });
 
       setTituloTarea('');
       setEstadoTarea('pendiente');
+      setArchivoTarea(null);
       setMensaje('Tarea creada correctamente.');
       await cargarTareas();
     } catch (error) {
@@ -219,6 +226,53 @@ function App() {
       });
 
       setMensaje('Título actualizado correctamente.');
+      await cargarTareas();
+    } catch (error) {
+      setError(error.message);
+    }
+  }
+
+  async function manejarSubirArchivo(tarea, archivo) {
+    try {
+      limpiarMensajes();
+
+      await subirArchivoTarea(tarea.numero, archivo);
+
+      setMensaje('Archivo subido correctamente.');
+      await cargarTareas();
+    } catch (error) {
+      setError(error.message);
+    }
+  }
+
+  async function manejarDescargarArchivo(tarea) {
+    try {
+      limpiarMensajes();
+
+      await descargarArchivoTarea(
+        tarea.numero,
+        tarea.archivo?.nombreOriginal || 'archivo'
+      );
+    } catch (error) {
+      setError(error.message);
+    }
+  }
+
+  async function manejarEliminarArchivo(tarea) {
+    const confirmar = window.confirm(
+      `¿Quitar el archivo de la tarea "${tarea.titulo}"?`
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
+    try {
+      limpiarMensajes();
+
+      await eliminarArchivoTarea(tarea.numero);
+
+      setMensaje('Archivo eliminado correctamente.');
       await cargarTareas();
     } catch (error) {
       setError(error.message);
@@ -294,6 +348,8 @@ function App() {
             setTituloTarea={setTituloTarea}
             estadoTarea={estadoTarea}
             setEstadoTarea={setEstadoTarea}
+            archivoTarea={archivoTarea}
+            setArchivoTarea={setArchivoTarea}
             manejarCrearTarea={manejarCrearTarea}
           />
 
@@ -310,6 +366,9 @@ function App() {
             manejarCambioEstado={manejarCambioEstado}
             manejarEditarTitulo={manejarEditarTitulo}
             manejarEliminarTarea={manejarEliminarTarea}
+            manejarSubirArchivo={manejarSubirArchivo}
+            manejarDescargarArchivo={manejarDescargarArchivo}
+            manejarEliminarArchivo={manejarEliminarArchivo}
           />
         </section>
       </section>

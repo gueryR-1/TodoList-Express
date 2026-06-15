@@ -1,3 +1,4 @@
+const fs = require('fs');
 const Tarea = require('../modelos/tarea.modelo');
 
 const estadosValidos = ['pendiente', 'en_proceso', 'completada'];
@@ -51,6 +52,26 @@ function obtenerFiltroPorIdONumero(id, usuarioId) {
   };
 }
 
+function obtenerDatosArchivo(archivo) {
+  if (!archivo) {
+    return null;
+  }
+
+  return {
+    nombreOriginal: archivo.originalname,
+    nombreGuardado: archivo.filename,
+    ruta: archivo.path,
+    tipoMime: archivo.mimetype,
+    tamanio: archivo.size
+  };
+}
+
+function eliminarArchivoFisico(archivo) {
+  if (archivo && archivo.ruta && fs.existsSync(archivo.ruta)) {
+    fs.unlinkSync(archivo.ruta);
+  }
+}
+
 async function obtenerTodasLasTareas(usuarioId, filtros = {}) {
   const consulta = {
     usuario: usuarioId
@@ -69,7 +90,7 @@ async function obtenerTareaPorId(id, usuarioId) {
   return await Tarea.findOne(filtro);
 }
 
-async function crearTarea(datos, usuarioId) {
+async function crearTarea(datos, usuarioId, archivo = null) {
   try {
     const ultimaTarea = await Tarea.findOne({
       usuario: usuarioId
@@ -82,6 +103,7 @@ async function crearTarea(datos, usuarioId) {
       numero: nuevoNumero,
       titulo: datos.titulo.trim(),
       estado: normalizarEstado(datos.estado),
+      archivo: obtenerDatosArchivo(archivo),
       usuario: usuarioId
     });
 
@@ -90,6 +112,10 @@ async function crearTarea(datos, usuarioId) {
       tarea: nuevaTarea
     };
   } catch (error) {
+    if (archivo) {
+      eliminarArchivoFisico(obtenerDatosArchivo(archivo));
+    }
+
     if (error.code === 11000) {
       return {
         error: true,
@@ -173,10 +199,55 @@ async function actualizarEstadoTarea(id, estado, usuarioId) {
   );
 }
 
+async function subirArchivoTarea(id, usuarioId, archivo) {
+  const filtro = obtenerFiltroPorIdONumero(id, usuarioId);
+  const tarea = await Tarea.findOne(filtro);
+
+  if (!tarea) {
+    if (archivo) {
+      eliminarArchivoFisico(obtenerDatosArchivo(archivo));
+    }
+
+    return null;
+  }
+
+  if (tarea.archivo) {
+    eliminarArchivoFisico(tarea.archivo);
+  }
+
+  tarea.archivo = obtenerDatosArchivo(archivo);
+  await tarea.save();
+
+  return tarea;
+}
+
+async function eliminarArchivoTarea(id, usuarioId) {
+  const filtro = obtenerFiltroPorIdONumero(id, usuarioId);
+  const tarea = await Tarea.findOne(filtro);
+
+  if (!tarea) {
+    return null;
+  }
+
+  if (tarea.archivo) {
+    eliminarArchivoFisico(tarea.archivo);
+  }
+
+  tarea.archivo = null;
+  await tarea.save();
+
+  return tarea;
+}
+
 async function eliminarTarea(id, usuarioId) {
   const filtro = obtenerFiltroPorIdONumero(id, usuarioId);
+  const tareaEliminada = await Tarea.findOneAndDelete(filtro);
 
-  return await Tarea.findOneAndDelete(filtro);
+  if (tareaEliminada && tareaEliminada.archivo) {
+    eliminarArchivoFisico(tareaEliminada.archivo);
+  }
+
+  return tareaEliminada;
 }
 
 module.exports = {
@@ -186,5 +257,7 @@ module.exports = {
   actualizarTareaCompleta,
   actualizarTareaParcial,
   actualizarEstadoTarea,
+  subirArchivoTarea,
+  eliminarArchivoTarea,
   eliminarTarea
 };

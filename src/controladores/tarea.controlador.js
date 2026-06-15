@@ -114,6 +114,7 @@ async function crearTarea(req, res) {
   try {
     const { titulo, estado } = req.body || {};
     const usuarioId = req.user._id;
+    const archivo = req.file || null;
 
     if (!titulo || typeof titulo !== 'string' || titulo.trim() === '') {
       return res.status(400).json({
@@ -127,7 +128,8 @@ async function crearTarea(req, res) {
         titulo,
         estado
       },
-      usuarioId
+      usuarioId,
+      archivo
     );
 
     if (resultado.error) {
@@ -139,7 +141,9 @@ async function crearTarea(req, res) {
 
     res.status(201).json({
       correcto: true,
-      mensaje: 'Tarea creada correctamente',
+      mensaje: archivo
+        ? 'Tarea creada correctamente con archivo adjunto'
+        : 'Tarea creada correctamente',
       datos: resultado.tarea
     });
   } catch (error) {
@@ -319,6 +323,129 @@ async function actualizarEstadoTarea(req, res) {
   }
 }
 
+async function subirArchivoTarea(req, res) {
+  try {
+    const { id } = req.params;
+    const usuarioId = req.user._id;
+    const archivo = req.file;
+
+    if (!idONumeroValido(id)) {
+      return res.status(400).json({
+        correcto: false,
+        mensaje: 'Debe enviar un número de tarea o un ID de MongoDB válido'
+      });
+    }
+
+    if (!archivo) {
+      return res.status(400).json({
+        correcto: false,
+        mensaje: 'Debe seleccionar un archivo'
+      });
+    }
+
+    const tareaActualizada = await servicioTarea.subirArchivoTarea(
+      id,
+      usuarioId,
+      archivo
+    );
+
+    if (!tareaActualizada) {
+      return res.status(404).json({
+        correcto: false,
+        mensaje: 'Tarea no encontrada para este usuario'
+      });
+    }
+
+    res.status(200).json({
+      correcto: true,
+      mensaje: 'Archivo subido correctamente',
+      datos: tareaActualizada
+    });
+  } catch (error) {
+    res.status(500).json({
+      correcto: false,
+      mensaje: 'Error al subir archivo',
+      error: error.message
+    });
+  }
+}
+
+async function descargarArchivoTarea(req, res) {
+  try {
+    const { id } = req.params;
+    const usuarioId = req.user._id;
+
+    if (!idONumeroValido(id)) {
+      return res.status(400).json({
+        correcto: false,
+        mensaje: 'Debe enviar un número de tarea o un ID de MongoDB válido'
+      });
+    }
+
+    const tarea = await servicioTarea.obtenerTareaPorId(id, usuarioId);
+
+    if (!tarea) {
+      return res.status(404).json({
+        correcto: false,
+        mensaje: 'Tarea no encontrada para este usuario'
+      });
+    }
+
+    if (!tarea.archivo || !tarea.archivo.ruta) {
+      return res.status(404).json({
+        correcto: false,
+        mensaje: 'Esta tarea no tiene archivo adjunto'
+      });
+    }
+
+    res.download(tarea.archivo.ruta, tarea.archivo.nombreOriginal);
+  } catch (error) {
+    res.status(500).json({
+      correcto: false,
+      mensaje: 'Error al descargar archivo',
+      error: error.message
+    });
+  }
+}
+
+async function eliminarArchivoTarea(req, res) {
+  try {
+    const { id } = req.params;
+    const usuarioId = req.user._id;
+
+    if (!idONumeroValido(id)) {
+      return res.status(400).json({
+        correcto: false,
+        mensaje: 'Debe enviar un número de tarea o un ID de MongoDB válido'
+      });
+    }
+
+    const tareaActualizada = await servicioTarea.eliminarArchivoTarea(
+      id,
+      usuarioId
+    );
+
+    if (!tareaActualizada) {
+      return res.status(404).json({
+        correcto: false,
+        mensaje: 'Tarea no encontrada para este usuario'
+      });
+    }
+
+    res.status(200).json({
+      correcto: true,
+      mensaje: 'Archivo eliminado correctamente',
+      datos: tareaActualizada
+    });
+  } catch (error) {
+    res.status(500).json({
+      correcto: false,
+      mensaje: 'Error al eliminar archivo',
+      error: error.message
+    });
+  }
+}
+
 async function eliminarTarea(req, res) {
   try {
     const { id } = req.params;
@@ -361,5 +488,8 @@ module.exports = {
   actualizarTareaCompleta,
   actualizarTareaParcial,
   actualizarEstadoTarea,
+  subirArchivoTarea,
+  descargarArchivoTarea,
+  eliminarArchivoTarea,
   eliminarTarea
 };
