@@ -1,5 +1,32 @@
 const mongoose = require('mongoose');
 
+const archivoEsquema = new mongoose.Schema(
+  {
+    nombreOriginal: {
+      type: String,
+      trim: true
+    },
+    nombreGuardado: {
+      type: String,
+      trim: true
+    },
+    ruta: {
+      type: String,
+      trim: true
+    },
+    tipoMime: {
+      type: String,
+      trim: true
+    },
+    tamanio: {
+      type: Number
+    }
+  },
+  {
+    _id: false
+  }
+);
+
 const tareaEsquema = new mongoose.Schema(
   {
     numero: {
@@ -15,6 +42,10 @@ const tareaEsquema = new mongoose.Schema(
       type: String,
       enum: ['pendiente', 'en_proceso', 'completada'],
       default: 'pendiente'
+    },
+    archivo: {
+      type: archivoEsquema,
+      default: null
     },
     usuario: {
       type: mongoose.Schema.Types.ObjectId,

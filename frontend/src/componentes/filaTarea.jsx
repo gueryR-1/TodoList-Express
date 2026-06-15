@@ -1,25 +1,45 @@
+function obtenerEtiquetaArchivo(archivo) {
+  if (!archivo || !archivo.tipoMime) return 'FILE';
+
+  if (archivo.tipoMime.startsWith('image/')) return 'IMG';
+  if (archivo.tipoMime === 'application/pdf') return 'PDF';
+  if (archivo.tipoMime.includes('word')) return 'DOC';
+  if (archivo.tipoMime.includes('excel') || archivo.tipoMime.includes('sheet')) return 'XLS';
+  if (archivo.tipoMime === 'text/plain') return 'TXT';
+
+  return 'FILE';
+}
+
 function FilaTarea({
   tarea,
   formatearEstado,
   obtenerClaseEstado,
   manejarCambioEstado,
   manejarEditarTitulo,
-  manejarEliminarTarea
+  manejarEliminarTarea,
+  manejarSubirArchivo,
+  manejarDescargarArchivo,
+  manejarEliminarArchivo
 }) {
+  const tieneArchivo = Boolean(tarea.archivo);
+
   return (
     <div className="fila">
-      <span className="celda numero">#{tarea.numero}</span>
+      <div className="celda numero">#{tarea.numero}</div>
 
-      <span className="celda nombre-tarea">{tarea.titulo}</span>
+      <div className="celda nombre-tarea">
+        {tarea.titulo}
+      </div>
 
-      <span className="celda">
+      <div className="celda">
         <span className={obtenerClaseEstado(tarea.estado)}>
           {formatearEstado(tarea.estado)}
         </span>
-      </span>
+      </div>
 
-      <span className="celda">
+      <div className="celda">
         <select
+          className="select-estado"
           value={tarea.estado}
           onChange={(evento) => manejarCambioEstado(tarea, evento.target.value)}
         >
@@ -27,23 +47,80 @@ function FilaTarea({
           <option value="en_proceso">En proceso</option>
           <option value="completada">Completada</option>
         </select>
-      </span>
+      </div>
 
-      <span className="celda acciones-tabla">
+      <div className="celda archivo-tarea">
+        <div className="archivo-panel">
+          <div className="archivo-superior">
+            <span className="archivo-etiqueta">
+              {tieneArchivo ? obtenerEtiquetaArchivo(tarea.archivo) : '---'}
+            </span>
+
+            <span
+              className="archivo-nombre"
+              title={tieneArchivo ? tarea.archivo.nombreOriginal : 'Sin archivo'}
+            >
+              {tieneArchivo ? tarea.archivo.nombreOriginal : 'Sin archivo'}
+            </span>
+          </div>
+
+          <div className="archivo-botones-fila">
+            {tieneArchivo && (
+              <>
+                <button
+                  type="button"
+                  className="boton mini"
+                  onClick={() => manejarDescargarArchivo(tarea)}
+                >
+                  Descargar
+                </button>
+
+                <button
+                  type="button"
+                  className="boton mini peligro"
+                  onClick={() => manejarEliminarArchivo(tarea)}
+                >
+                  Quitar
+                </button>
+              </>
+            )}
+
+            <label className="boton mini subir-mini">
+              Subir
+              <input
+                className="input-oculto"
+                type="file"
+                onChange={(evento) => {
+                  const archivo = evento.target.files[0];
+
+                  if (archivo) {
+                    manejarSubirArchivo(tarea, archivo);
+                    evento.target.value = '';
+                  }
+                }}
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="celda acciones-tabla">
         <button
-          className="boton pequeno"
+          type="button"
+          className="boton mini"
           onClick={() => manejarEditarTitulo(tarea)}
         >
           Editar
         </button>
 
         <button
-          className="boton pequeno peligro"
+          type="button"
+          className="boton mini peligro"
           onClick={() => manejarEliminarTarea(tarea)}
         >
           Eliminar
         </button>
-      </span>
+      </div>
     </div>
   );
 }

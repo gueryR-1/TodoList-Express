@@ -13,7 +13,10 @@ function ListaTareas({
   obtenerClaseEstado,
   manejarCambioEstado,
   manejarEditarTitulo,
-  manejarEliminarTarea
+  manejarEliminarTarea,
+  manejarSubirArchivo,
+  manejarDescargarArchivo,
+  manejarEliminarArchivo
 }) {
   return (
     <section className="bloque-lista">
@@ -48,7 +51,8 @@ function ListaTareas({
               <span>N°</span>
               <span>Tarea</span>
               <span>Estado</span>
-              <span>Actualizar</span>
+              <span>Cambiar</span>
+              <span>Archivo</span>
               <span>Acciones</span>
             </div>
 
@@ -61,6 +65,9 @@ function ListaTareas({
                 manejarCambioEstado={manejarCambioEstado}
                 manejarEditarTitulo={manejarEditarTitulo}
                 manejarEliminarTarea={manejarEliminarTarea}
+                manejarSubirArchivo={manejarSubirArchivo}
+                manejarDescargarArchivo={manejarDescargarArchivo}
+                manejarEliminarArchivo={manejarEliminarArchivo}
               />
             ))}
           </div>

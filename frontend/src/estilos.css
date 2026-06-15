@@ -14,29 +14,56 @@ button,
 input,
 select {
   font: inherit;
-  padding: 7px;
 }
 
 button {
   cursor: pointer;
-  border: 1px solid #aaa;
-  background: #eee;
-  font-weight: bold;
-}
-
-input,
-select {
-  border: 1px solid #aaa;
-  background: white;
 }
 
 h1,
 h2,
+h3,
 p {
   margin-top: 0;
 }
 
-/* Login */
+input,
+select {
+  border: 1px solid #bbb;
+  background: white;
+  padding: 7px;
+}
+
+.boton {
+  border: 1px solid #aaa;
+  background: #eee;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+}
+
+.boton.principal {
+  background: #2d5be3;
+  color: white;
+  border-color: #2d5be3;
+}
+
+.boton.mini {
+  padding: 4px 7px;
+  font-size: 11px;
+  height: 26px;
+  min-width: 58px;
+  line-height: 16px;
+}
+
+.boton.peligro,
+.peligro {
+  background: #f5d6d6;
+  color: #8a0000;
+  border-color: #d4a2a2;
+}
+
+/* LOGIN */
 
 .contenedor-login {
   max-width: 500px;
@@ -50,7 +77,7 @@ p {
 .menu-lateral {
   background: white;
   border: 1px solid #ccc;
-  padding: 15px;
+  padding: 14px;
 }
 
 .titulo-login {
@@ -65,11 +92,11 @@ p {
 
 .pestanas button {
   flex: 1;
+  padding: 8px;
 }
 
 .pestanas .activo,
-.opcion-menu.activa,
-.boton.principal {
+.opcion-menu.activa {
   background: #2d5be3;
   color: white;
   border-color: #2d5be3;
@@ -86,7 +113,7 @@ p {
   font-weight: bold;
 }
 
-/* Mensajes */
+/* MENSAJES */
 
 .mensaje {
   padding: 8px;
@@ -105,12 +132,12 @@ p {
   color: #8a0000;
 }
 
-/* Panel */
+/* PANEL */
 
 .barra-superior {
   background: white;
   border-bottom: 1px solid #ccc;
-  padding: 12px 20px;
+  padding: 12px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -118,6 +145,7 @@ p {
 
 .datos-usuario h1 {
   margin-bottom: 5px;
+  font-size: 26px;
 }
 
 .datos-usuario p,
@@ -127,61 +155,167 @@ p {
 
 .contenido-panel {
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: 200px minmax(0, 1fr);
   gap: 12px;
   padding: 12px;
 }
 
 .menu-filtros {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .opcion-menu {
   text-align: left;
+  padding: 10px;
+  border: 1px solid #bbb;
+  background: #eee;
+  font-weight: bold;
 }
 
 .resumen-lateral {
   margin-top: 12px;
-  padding-top: 10px;
+  padding-top: 12px;
   border-top: 1px solid #ccc;
 }
 
 .resumen-lateral strong {
-  font-size: 22px;
+  font-size: 24px;
 }
 
-/* Formularios */
+/* FORMULARIO CREAR */
+
+.bloque-formulario {
+  margin-bottom: 12px;
+}
+
+.titulo-bloque p {
+  margin-bottom: 12px;
+}
 
 .formulario-tarea {
   display: grid;
-  grid-template-columns: 1fr 150px 100px;
-  gap: 8px;
+  grid-template-columns: minmax(240px, 1fr) 160px 180px 110px;
+  gap: 10px;
+  align-items: end;
+}
+
+.campo {
+  display: grid;
+  gap: 5px;
+}
+
+.campo label {
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.campo-submit button {
+  width: 100%;
+  height: 36px;
+}
+
+.selector-archivo {
+  display: block;
+  width: 100%;
+  text-align: center;
+  border: 1px solid #aaa;
+  background: #eee;
+  padding: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.selector-archivo input {
+  display: none;
+}
+
+/* PREVISUALIZACION */
+
+.preview-archivo {
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.preview-izquierda {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.preview-imagen {
+  width: 70px;
+  height: 50px;
+  object-fit: cover;
+  border: 1px solid #bbb;
+  background: white;
+}
+
+.preview-icono {
+  width: 48px;
+  height: 34px;
+  border: 1px solid #aaa;
+  background: white;
+  color: #2d5be3;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.preview-datos {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.preview-datos strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview-datos span {
+  font-size: 12px;
+  color: #555;
+}
+
+/* LISTADO */
+
+.bloque-lista {
+  overflow: hidden;
 }
 
 .cabecera-lista {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.bloque-formulario,
-.bloque-lista {
   margin-bottom: 12px;
 }
 
-/* Tabla */
+.cabecera-lista select {
+  width: 150px;
+}
 
 .tabla-tareas {
   border: 1px solid #ccc;
+  overflow-x: auto;
 }
 
 .fila {
   display: grid;
-  grid-template-columns: 55px 1fr 120px 140px 130px;
-  gap: 8px;
+  grid-template-columns: 50px minmax(210px, 1fr) 110px 135px 360px 150px;
+  gap: 10px;
   align-items: center;
-  padding: 6px 8px;
+  min-width: 1020px;
+  padding: 8px 10px;
   border-bottom: 1px solid #ddd;
 }
 
@@ -192,6 +326,7 @@ p {
 .encabezado-tabla {
   background: #e9e9e9;
   font-weight: bold;
+  padding: 8px 10px;
 }
 
 .numero {
@@ -200,14 +335,12 @@ p {
 }
 
 .nombre-tarea {
-  font-weight: normal;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 .estado {
-  padding: 3px 6px;
+  display: inline-block;
+  padding: 4px 8px;
   border: 1px solid #bbb;
   font-size: 12px;
 }
@@ -224,18 +357,88 @@ p {
   background: #dff0d8;
 }
 
-.acciones-tabla {
-  display: flex;
+.select-estado {
+  width: 100%;
+  min-width: 105px;
+}
+
+/* ARCHIVO */
+
+.archivo-tarea {
+  width: 100%;
+  min-width: 0;
+}
+
+.archivo-box {
+  width: 100%;
+  display: grid;
   gap: 5px;
 }
 
-.peligro {
-  background: #f5d6d6;
-  color: #8a0000;
+.archivo-info {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
 }
 
+.archivo-tipo {
+  height: 24px;
+  border: 1px solid #aaa;
+  background: #f7f7f7;
+  color: #2d5be3;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.archivo-nombre {
+  min-width: 0;
+  max-width: 100%;
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.archivo-acciones-mini {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.subir-mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-oculto {
+  display: none !important;
+}
+
+/* ACCIONES */
+
+.acciones-tabla {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.acciones-tabla .boton.mini {
+  min-width: 65px;
+}
+
+/* PAGINACION */
+
 .paginacion {
-  margin-top: 10px;
+  margin-top: 12px;
   display: flex;
   justify-content: center;
   gap: 10px;
@@ -247,28 +450,46 @@ p {
   border: 1px dashed #aaa;
 }
 
-/* Responsive */
+/* RESPONSIVE */
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .barra-superior,
   .cabecera-lista {
     display: grid;
     gap: 8px;
   }
 
-  .contenido-panel,
-  .formulario-tarea,
-  .fila {
+  .contenido-panel {
     grid-template-columns: 1fr;
+  }
+
+  .formulario-tarea {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-archivo {
+    display: grid;
+  }
+
+  .tabla-tareas {
+    border: none;
+    overflow: visible;
   }
 
   .encabezado-tabla {
     display: none;
   }
 
-  .acciones-tabla,
-  .pestanas {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  .fila {
+    min-width: 0;
+    grid-template-columns: 1fr;
+    border: 1px solid #ccc;
+    background: white;
+    margin-bottom: 10px;
+  }
+
+  .archivo-acciones-mini,
+  .acciones-tabla {
+    flex-wrap: wrap;
   }
 }

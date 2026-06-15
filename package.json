@@ -26,10 +26,13 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.6.2",
+    "multer": "^2.1.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "mkcert": "^3.2.0",
+    "nodemon": "^3.1.14",
+    "selfsigned": "^5.5.0"
   }
 }

@@ -7,11 +7,18 @@ const rutasAutenticacion = require('./rutas/autenticacion.rutas');
 
 const aplicacion = express();
 
-aplicacion.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+aplicacion.use(
+  cors({
+    origin: [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'https://localhost:5173',
+      'https://127.0.0.1:5173'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  })
+);
 
 aplicacion.use(express.json());
 aplicacion.use(passport.initialize());
@@ -19,18 +26,23 @@ aplicacion.use(passport.initialize());
 aplicacion.get('/', (req, res) => {
   res.status(200).json({
     correcto: true,
-    mensaje: 'Servidor Todo List API REST con MongoDB, Passport, JWT y React',
-    version: '5.0.0',
+    mensaje:
+      'Servidor Todo List API REST con MongoDB, Passport, JWT, React y archivos',
+    version: '5.1.0',
     baseDeDatos: 'MongoDB Atlas',
     autenticacion: 'Passport JWT',
     frontend: 'React',
+    archivos: 'Multer en almacenamiento local',
     endpoints: {
       registro: 'POST /api/auth/registro',
       login: 'POST /api/auth/login',
       perfil: 'GET /api/auth/perfil',
       listarTareas: 'GET /api/tareas',
       buscarTareaPorIdONumero: 'GET /api/tareas/:id',
-      crearTarea: 'POST /api/tareas',
+      crearTareaConArchivo: 'POST /api/tareas',
+      descargarArchivo: 'GET /api/tareas/:id/archivo',
+      subirOReemplazarArchivo: 'PATCH /api/tareas/:id/archivo',
+      eliminarArchivo: 'DELETE /api/tareas/:id/archivo',
       actualizarTareaCompleta: 'PUT /api/tareas/:id',
       actualizarTareaParcial: 'PATCH /api/tareas/:id',
       actualizarEstado: 'PATCH /api/tareas/:id/estado',
@@ -42,6 +54,17 @@ aplicacion.get('/', (req, res) => {
 aplicacion.use('/api/auth', rutasAutenticacion);
 aplicacion.use('/api/tareas', rutasTareas);
 
+aplicacion.use((error, req, res, next) => {
+  if (error) {
+    return res.status(400).json({
+      correcto: false,
+      mensaje: error.message || 'Error en la petición'
+    });
+  }
+
+  next();
+});
+
 aplicacion.use((req, res) => {
   res.status(404).json({
     correcto: false,
@@ -50,9 +73,3 @@ aplicacion.use((req, res) => {
 });
 
 module.exports = aplicacion;
-
-//UTILIZAR PUT Y PATCH
-//EL TASTLIST TIENE QUE SER CON CACHE
-// el servidor va mirar el d tag 
-// aumentar en el get task list, como los datos metadatos, de manera estandart si datos no despliega tiene que decir que datos no hay datos. 
-// cuidar los metadatos. 
