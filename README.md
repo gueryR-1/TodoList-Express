@@ -47,4 +47,15 @@ coverage/
 
 # Archivos temporales
 *.tmp
-*.temp
+*.
+
+## Carga de base de datos de prueba
+
+El proyecto incluye un script para cargar datos de prueba por lotes en MongoDB Atlas.
+
+Primero se debe configurar el archivo `.env` en la raíz del proyecto usando como guía el archivo `.env.example`.
+
+Luego ejecutar:
+
+```bash
+pnpm seed
