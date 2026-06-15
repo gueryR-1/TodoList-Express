@@ -16,3 +16,9 @@ frontend/dist/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Archivos subidos localmente
+uploads/
+
+# Certificados locales HTTPS
+certs/
