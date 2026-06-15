@@ -1,0 +1,42 @@
+[
+  {
+    "titulo": "Estudiar programación web",
+    "estado": "pendiente"
+  },
+  {
+    "titulo": "Probar login con Passport JWT",
+    "estado": "completada"
+  },
+  {
+    "titulo": "Crear tarea con archivo adjunto",
+    "estado": "en_proceso"
+  },
+  {
+    "titulo": "Descargar archivo de una tarea",
+    "estado": "pendiente"
+  },
+  {
+    "titulo": "Reemplazar archivo adjunto",
+    "estado": "pendiente"
+  },
+  {
+    "titulo": "Eliminar archivo de una tarea",
+    "estado": "en_proceso"
+  },
+  {
+    "titulo": "Filtrar tareas por estado",
+    "estado": "completada"
+  },
+  {
+    "titulo": "Probar ejecución con HTTPS local",
+    "estado": "pendiente"
+  },
+  {
+    "titulo": "Revisar documentación del README",
+    "estado": "completada"
+  },
+  {
+    "titulo": "Preparar defensa del proyecto",
+    "estado": "en_proceso"
+  }
+]

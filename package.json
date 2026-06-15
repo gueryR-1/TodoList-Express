@@ -5,7 +5,8 @@
   "main": "src/servidor.js",
   "scripts": {
     "start": "node src/servidor.js",
-    "dev": "nodemon src/servidor.js"
+    "dev": "nodemon src/servidor.js",
+    "seed": "node scripts/cargarDatosPrueba.js"
   },
   "keywords": [
     "todo-list",
